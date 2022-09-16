@@ -242,6 +242,19 @@ image_repositories = []
 
 ---
 
+# Infrastructure as code
+
+# delete a stack
+
+```shell
+$ sam delete --stack-name <stack-name>
+```
+
+
+---
+
+
+
 # Local debugging and testing support
 
 <v-click>
