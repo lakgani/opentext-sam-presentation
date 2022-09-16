@@ -4,22 +4,35 @@ class: text-center
 title: AWS SAM
 lineNumbers: false
 favicon: https://media.amazonwebservices.com/blog/2018/sam_squirrel_1.jpg
+# force color schema for the slides, can be 'auto', 'light', or 'dark'
+colorSchema: 'dark'
+# syntax highlighter, can be 'prism' or 'shiki'
+highlighter: 'prism'
 fonts:
   sans: 'Roboto'
   serif: 'Roboto Slab'
   mono: 'Fira Code'
 defaults:
   layout: 'center'
----
-
-# AWS SAM
-
-
----
 background: './images/background-1.png'
----​
+---
+
+
+##  Simplify serverless workflow with 
+# AWS SAM
+---
 
 # Why Serverless
+
+<v-clicks>
+
+![Traditional vs Serverless](/traditionalvsserverless1.webp)
+
+</v-clicks>
+
+---
+
+# AWS Lambda
 
 <v-click>
 
@@ -29,8 +42,8 @@ background: './images/background-1.png'
 
 <v-clicks>
 
-* No need to pay for any resources if its not being used.
 * No need to handle server provisioning and maintainance
+* No need to pay for any resources if its not being used.
 * No need to handle the scaling.
 
 </v-clicks>
@@ -45,33 +58,42 @@ background: './images/background-1.png'
 
 * Cold boot
 * Increased development complexity
+* run-time has upper cutoff at 15mins
+* No hardware selection except for memory and cpu architecture
 
 </v-clicks>
 
-
 ---
 
+# Serverless primary usecases
 
-# Types of serverless applications
-* API
-* Event driven applications
+<v-clicks>
+
+* Event driven applications (S3, SNS, SQS, DynamoDB, etc)
 * scheduled applications
+* API
 
+</v-clicks>
 
 ---
 
-# Traditional development pattern and its issues
-* Manually creating infra using AWS UI is not scalable.
-* Changing file locally and uploading everytime a change is done / Using Cloud9 tool to write the lambda functions has its fair share of issues
-* Need to write a lot of custom code to zip and deploy for CICD.
+# Traditional development pattern
 
+<v-clicks>
+
+* Manually creating infra using AWS UI.
+* Changing file locally and uploading everytime a change is done / Using Cloud9 tool to write the lambda functions.
+* Write a lot of custom code to zip and deploy for CICD.
+
+</v-clicks>
 
 ---
 
 # AWS SAM to rescue
-* Its a combination of 
-  * Template file
-  * cli
+
+combination of 
+* Template file
+* cli
 
 
 ---
@@ -79,7 +101,7 @@ background: './images/background-1.png'
 # SAM Key features
 * Infrastructure as code.
 * Local debugging and testing support
-* Stream logs of Lambdas running on AWS
+* View logs of Lambdas running on AWS
 * real-time development in AWS
 * Generate sample event payloads
 
@@ -96,14 +118,21 @@ background: './images/background-1.png'
 ---
 
 # Infrastructure as code
+
+<v-clicks>
+
 * Time saving
 * Repeatable
 * Consistent
+* ease of tracking changes (when paired with git)
 
+</v-clicks>
 
 ---
 
-# Supported resources 
+# Infrastructure as code
+## Supported resources 
+
 
 * Lambda
 * API Gateway 
@@ -112,7 +141,8 @@ background: './images/background-1.png'
 
 ---
 
-# Example: Simple lambda
+# Infrastructure as code
+## Example: Simple lambda template file
 
 ```yaml{0|1,2|3|4|5|6-11|12-20|all}
 AWSTemplateFormatVersion: '2010-09-09'
@@ -137,104 +167,170 @@ Resources:
 
 ---
 
-# Simplified deployment
+# Infrastructure as code
 
-`sam deploy`
+## building
 
+```shell
+$ sam build
+```
+<v-clicks>
+
+* Installs all the required dependencies for supported platforms like python, node etc
+* package the code and dependencies as zip or docker imageas based on configuration
+
+</v-clicks>
+
+---
+
+
+
+
+# Infrastructure as code
+## Simplified deployment
+
+```shell
+$ sam deploy --template-file template.yml
+             --stack-name <stack-name>
+             --s3-bucket <bucket-name>
+             --capabilities <capabilities>
+             --confirm-changeset
+```
+<v-click>
+
+Doesn't feel simple isn't it?
+
+</v-click>
+
+
+
+---
+
+# Infrastructure as code
+
+## deploy - guided mode
+
+```shell
+$ sam deploy --guided
+```
+
+<v-click>
+
+![Guided mode](/public/sam-guided-form.jpg)
+
+</v-click>
+
+
+---
+
+# Infrastructure as code
+# deploy - samconfig.toml
+
+```yaml
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "gpendyala-sam-hello"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-tgzgwr7f4742"
+s3_prefix = "gpendyala-sam-hello"
+region = "ap-south-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+```
 
 ---
 
 # Local debugging and testing support
 
+<v-click>
+
 ## Invoke lambdas with predefined events
-`sam local invoke "HelloWorldFunction" -e event.json`
+
+```shell
+$ sam local invoke "HelloWorldFunction" -e events/event.json
+```
+
+</v-click>
+
+<v-click>
 
 ## Emulate API Gateway HTTP server locally
-`sam local start-api`
+```shell
+$ sam local start-api
+```
 
+</v-click>
 
 ---
 
 # Generate sample event payloads
 
-`sam local generate-event s3 [put/delete] --bucket <bucket> --key <key>`
-
-```json {maxHeight:'100'}
-{
-  "Records": [
-    {
-      "eventVersion": "2.0",
-      "eventSource": "aws:s3",
-      "awsRegion": "us-east-1",
-      "eventTime": "1970-01-01T00:00:00.000Z",
-      "eventName": "ObjectCreated:Put",
-      "userIdentity": {
-        "principalId": "EXAMPLE"
-      },
-      "requestParameters": {
-        "sourceIPAddress": "127.0.0.1"
-      },
-      "responseElements": {
-        "x-amz-request-id": "EXAMPLE123456789",
-        "x-amz-id-2": "EXAMPLE123/5678abcdefghijklambdaisawesome/mnopqrstuvwxyzABCDEFGH"
-      },
-      "s3": {
-        "s3SchemaVersion": "1.0",
-        "configurationId": "testConfigRule",
-        "bucket": {
-          "name": "gpendyala",
-          "ownerIdentity": {
-            "principalId": "EXAMPLE"
-          },
-          "arn": "arn:aws:s3:::gpendyala"
-        },
-        "object": {
-          "key": "key",
-          "size": 1024,
-          "eTag": "0123456789abcdef0123456789abcdef",
-          "sequencer": "0A1B2C3D4E5F678901"
-        }
-      }
-    }
-  ]
-}
+```shell
+$ sam local generate-event
 ```
+
+
 
 
 ---
 
-# Stream logs of Lambdas running on AWS
+# View logs of Lambdas running on AWS
 
+<v-click>
+
+## Get logs of a lambda
 ```shell
 $ sam logs -n mystack-HelloWorldFunction-1FJ8PD36GML2Q
 ```
 
+</v-click>
+
+<v-click>
+
+## tail  logs of lambda 
 ```shell
 $ sam logs -n HelloWorldFunction --stack-name mystack --tail
 ```
+</v-click>
 
+<v-click>
+
+## filter logs of lambda
 ```shell
 $ sam logs -n HelloWorldFunction --stack-name mystack --filter 'error'
 ```
+</v-click>
 
 
 ---
 
 # real-time deployment to AWS
-`sam sync`
-
+```shell
+$ sam sync
+```
 
 ---
 
-# 
+# Demo
+
+---
 
 # Other notable features
 * Lambda layers
 * tracing
+* AWS CDK support
 
 
 ---
 
 # Few issues
 * Not all features are supported locally
-* Real-time development in AWS is still slow for regular development tasks(Serverless Stack seems to be good alternative here)
+* Real-time development in AWS is still slow for regular development tasks
+
+---
+
+# Popular alternatives
+* Serverless framework
+* Serveless stack (has a unique local debugging support which is miles faster than CDK)
