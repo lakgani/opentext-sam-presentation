@@ -177,7 +177,7 @@ $ sam build
 <v-clicks>
 
 * Installs all the required dependencies for supported platforms like python, node etc
-* package the code and dependencies as zip or docker imageas based on configuration
+* package the code and dependencies as zip or docker images based on configuration
 
 </v-clicks>
 
@@ -346,4 +346,4 @@ $ sam sync
 
 # Popular alternatives
 * Serverless framework
-* Serveless stack (has a unique local debugging support which is miles faster than CDK)
+* Serveless stack (has a unique local debugging support which is miles faster than SAM)
